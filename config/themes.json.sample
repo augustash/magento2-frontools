@@ -24,6 +24,7 @@
     "localeOverwrites": true,
     "parent": "blank",
     "stylesDir": "web/css",
-    "postcss": ["plugins.autoprefixer()"]
+    "postcss": ["plugins.autoprefixer()"],
+    "sassIncludePaths": ["vendor/zurb/foundation/scss"]
   }
 }
