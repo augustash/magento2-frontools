@@ -2,12 +2,19 @@
 module.exports = function(gulp, plugins, config, name, file) { // eslint-disable-line func-names
   // Return function that is executed inside of .pipe()
   return () => {
-    const theme       = config.themes[name],
-          srcBase     = config.projectPath + 'var/view_preprocessed/frontools' + theme.dest.replace('pub/static', ''),
-          stylesDir   = theme.stylesDir ? '/' + theme.stylesDir : '/styles',
-          disableMaps = plugins.util.env.disableMaps || false,
-          production  = plugins.util.env.prod || false,
-          postcss     = [];
+    const theme             = config.themes[name],
+          srcBase           = config.projectPath + 'var/view_preprocessed/frontools' + theme.dest.replace('pub/static', ''),
+          stylesDir         = theme.stylesDir ? '/' + theme.stylesDir : '/styles',
+          disableMaps       = plugins.util.env.disableMaps || false,
+          production        = plugins.util.env.prod || false,
+          postcss           = [],
+          sassIncludePaths  = [];
+
+    if (theme.sassIncludePaths) {
+      theme.sassIncludePaths.forEach(path => {
+        sassIncludePaths.push(config.projectPath + path);
+      });
+    }
 
     if (theme.postcss) {
       theme.postcss.forEach(el => {
@@ -30,7 +37,7 @@ module.exports = function(gulp, plugins, config, name, file) { // eslint-disable
         )
         .pipe(plugins.plumber({ errorHandler: plugins.notify.onError('Error: <%= error.message %>') }))
         .pipe(plugins.if(!disableMaps, plugins.sourcemaps.init()))
-        .pipe(plugins.sass())
+        .pipe(plugins.sass({ includePaths: sassIncludePaths }))
         .pipe(plugins.if(production, plugins.postcss([plugins.cssnano()])))
         .pipe(plugins.if(postcss.length, plugins.postcss(postcss || [])))
         .pipe(plugins.if(!disableMaps, plugins.sourcemaps.write()))
@@ -51,7 +58,7 @@ module.exports = function(gulp, plugins, config, name, file) { // eslint-disable
           )
           .pipe(plugins.plumber({ errorHandler: plugins.notify.onError('Error: <%= error.message %>') }))
           .pipe(plugins.if(!disableMaps, plugins.sourcemaps.init()))
-          .pipe(plugins.sass())
+          .pipe(plugins.sass({ includePaths: sassIncludePaths }))
           .pipe(plugins.if(production, plugins.postcss([plugins.cssnano()])))
           .pipe(plugins.if(postcss.length, plugins.postcss(postcss || [])))
           .pipe(plugins.if(!disableMaps, plugins.sourcemaps.write()))
