@@ -4,8 +4,8 @@ module.exports = function(gulp, plugins, config, name, file) { // eslint-disable
         srcBase       = config.projectPath + 'var/view_preprocessed/frontools' + theme.dest.replace('pub/static', ''),
         stylesDir     = theme.stylesDir ? theme.stylesDir : 'styles',
         dest          = [],
-        disableMaps   = plugins.util.env.disableMaps || false,
-        production    = plugins.util.env.prod || false,
+        disableMaps   = plugins.util.env.disableMaps || true,
+        production    = plugins.util.env.prod || true,
         postcss       = [],
         disableSuffix = theme.disableSuffix || false;
 
@@ -49,6 +49,10 @@ module.exports = function(gulp, plugins, config, name, file) { // eslint-disable
       plugins.sass()
         .on('error', plugins.sassError.gulpSassError(plugins.util.env.ci || false))
     )
+    // to output a non-minified version of compiled css
+    .pipe(plugins.rename(adjustDestinationDirectory))
+    .pipe(plugins.multiDest(dest))
+    // to output a minified version of compiled css from production variable flag
     .pipe(plugins.if(production, plugins.postcss([plugins.cssnano()])))
     .pipe(plugins.if(postcss.length, plugins.postcss(postcss || [])))
     .pipe(plugins.if(!disableMaps && !production, plugins.sourcemaps.write()))
@@ -61,4 +65,5 @@ module.exports = function(gulp, plugins, config, name, file) { // eslint-disable
       afterEach : ' Compiled!'
     }))
     .pipe(plugins.browserSync.stream());
+
 };
